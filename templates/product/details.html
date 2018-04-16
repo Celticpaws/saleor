@@ -130,13 +130,23 @@
           <h2 class="product__info__price">
             <span>{% price_range availability.price_range %}</span>
             {% if availability.discount %}
-              <small class="product__info__price__undiscounted">{{ availability.price_range_undiscounted.start.gross|amount:'html' }}</small>
+              <small class="product__info__price__undiscounted">
+                {% if display_gross_prices %}
+                  {{ availability.price_range_undiscounted.start.gross|amount:'html' }}
+                {% else %}
+                  {{ availability.price_range_undiscounted.start.net|amount:'html' }}
+                {% endif %}
+              </small>
             {% endif %}
             {% if availability.price_range_local_currency %}
               <br>
               <small class="text-info">
                 &asymp;
-                {{ availability.price_range_local_currency.start.gross|amount:'html' }}
+                {% if display_gross_prices %}
+                  {{ availability.price_range_local_currency.start.gross|amount:'html' }}
+                {% else %}
+                  {{ availability.price_range_local_currency.start.net|amount:'html' }}
+                {% endif %}
               </small>
             {% endif %}
           </h2>
@@ -146,7 +156,8 @@
         {% block orderform %}
           {% if show_variant_picker %}
             {% csrf_token %}
-            <div id="variant-picker" data-variant-picker-data="{{ variant_picker_data }}" data-action="{% url 'product:add-to-cart' product_id=product.pk slug=product.get_slug %}"></div>
+            <div id="variant-picker" data-variant-picker-data="{{ variant_picker_data }}"
+                 data-action="{% url 'product:add-to-cart' product_id=product.pk slug=product.get_slug %}" data-display-gross-price="{{ display_gross_prices }}"></div>
           {% else %}
             <form id="product-form" role="form" class="product-form clearfix" method="post" action="{% url 'product:add-to-cart' product_id=product.pk slug=product.get_slug %}" novalidate>
               {% csrf_token %}
